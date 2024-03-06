@@ -1,11 +1,12 @@
 {
   "name": "esbuild-repl",
   "version": "0.1.0",
-  "private": true,
-  "scripts": {},
-  "bin": {
-    "esbuild-repl": "./bin/bin.js"
+  "scripts": {
+    "build": "esbuild src/index.ts --outdir=build/ --platform=node --bundle --minify --external:esbuild --external:source-map-support",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint --fix src/**/*.ts"
   },
+  "main": "build/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/xShadowBlade/esbuild-repl"
@@ -28,14 +29,17 @@
       "last 1 safari version"
     ]
   },
-  "dependencies": {
-    "esbuild": "^0.20.0"
-  },
   "devDependencies": {
+    "@types/node": "^20.11.24",
+    "@typescript-eslint/eslint-plugin": "^7.0.2",
+    "@typescript-eslint/parser": "^7.0.2",
+    "esbuild": "^0.20.1",
     "eslint": "^8.52.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-jsdoc": "^46.9.0",
     "prettier": "^3.0.3",
-    "prettier-eslint": "^16.1.1"
+    "prettier-eslint": "^16.1.1",
+    "source-map-support": "^0.5.21",
+    "typescript": "^5.2.2"
   }
 }

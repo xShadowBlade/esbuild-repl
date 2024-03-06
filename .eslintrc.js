@@ -47,13 +47,13 @@ if (fs.existsSync("../../template-defaults/eslintrules.json")) {
         "spaced-comment": "warn",
         "yoda": "warn",
 
-        // "@typescript-eslint/no-unused-vars": "warn",
-        // "@typescript-eslint/no-explicit-any": "warn",
-        // "@typescript-eslint/ban-ts-comment": "warn",
+        "@typescript-eslint/no-unused-vars": "warn",
+        "@typescript-eslint/no-explicit-any": "warn",
+        "@typescript-eslint/ban-ts-comment": "warn",
 
-        // "jsdoc/require-param-type": "off",
-        // "jsdoc/require-returns-type": "off",
-        // "jsdoc/require-file-overview": 1,
+        "jsdoc/require-param-type": "off",
+        "jsdoc/require-returns-type": "off",
+        "jsdoc/require-file-overview": 1,
     };
 }
 
@@ -64,6 +64,8 @@ const options = {
     "extends": [
         "eslint:recommended",
         "prettier",
+        "plugin:jsdoc/recommended-typescript",
+        "plugin:@typescript-eslint/recommended",
     ],
     "env": {
         "node": true,
