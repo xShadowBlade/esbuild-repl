@@ -1,15 +1,17 @@
 #!/usr/bin/env node
 
-// import "source-map-support/register";
-
+/**
+ * @file The main entry point for the esbuild-repl CLI tool.
+ */
 import fs from "fs";
 import path from "path";
 import { argv } from "process";
 import * as esbuild from "esbuild";
+import type { CommonOptions } from "esbuild";
 
 const outFileName = "output.js";
 const outfile = path.join(__dirname, `../files/${outFileName}`);
-console.log("Output file:", outfile);
+// console.log("Output file:", outfile);
 
 /**
  * Extracts command-line arguments and flags from the process arguments.
@@ -20,7 +22,7 @@ const [args, flags] = (() => {
     const flagsA = {} as { [flag: string]: string | boolean };
     argv.forEach((item) => {
         if (item.match(/^(-|--)+/)) { // If it is a flag
-            item = item.replace(/(-|--)+/g, "");
+            item = item.replace(/^(-|--)+/g, "");
             const arr = item.split("=");
             flagsA[arr[0]] = arr[1] ? arr[1] : true;
         } else {
@@ -30,23 +32,50 @@ const [args, flags] = (() => {
     return [argsA, flagsA];
 })();
 
-if (flags["d"] || flags["debug"]) console.log("argv:", argv, "Args:", args, "\n", "Flags:", flags);
+const debug = flags["d"] || flags["debug"];
 
-/**
- * Represents the main entry point for the QuarkScript CLI tool.
- */
+if (debug) console.log("argv:", argv, "Args:", args, "\n", "Flags:", flags);
+
 const [, , fileToRun] = args;
 
-if (!fileToRun) {
-    console.error("No file to run specified.");
+/**
+ * Displays the help message for the CLI tool.
+ */
+function displayHelp () {
+    console.log(`Usage: esbuild-repl [file]
+
+    Options:
+        -h, --help      Display this help message.
+        -d, --debug     Display debug information.
+        --source-map    Source map type. Default: "linked".
+    `);
+    process.exit(0);
+}
+
+if (!fileToRun || flags["h"] || flags["help"]) {
+    // console.error("No file to run specified.");
+    displayHelp();
     process.exit(1);
 }
 
 const file = path.resolve(fileToRun);
 if (!fs.existsSync(file)) {
-    console.error("File does not exist.");
+    console.error(`File ${file} does not exist.`);
     process.exit(1);
 }
+
+const sourceMap = (() => {
+    let out: CommonOptions["sourcemap"] = "linked";
+    const sourceMapFlag = flags["sourcemap"];
+    if (sourceMapFlag) {
+        if (sourceMapFlag === "true") out = true;
+        else if (sourceMapFlag === "false") out = false;
+        else out = (sourceMapFlag as CommonOptions["sourcemap"]);
+    }
+    return out;
+})();
+
+if (debug) console.log("Source map:", sourceMap);
 
 esbuild.build({
     entryPoints: [file],
@@ -55,7 +84,8 @@ esbuild.build({
     platform: "node",
     target: "node14",
     // external: ["source-map-support"],
-    sourcemap: "linked",
+    // sourcemap: "linked",
+    sourcemap: sourceMap,
     // minify: true,
     format: "cjs",
 })
@@ -79,7 +109,7 @@ esbuild.build({
     //         // minify: true,
     //         format: "cjs",
     //         // logLevel: "info",
-    //     });   
+    //     });
     // })
     // .then(() => {
     //     // Prepend "//# sourceMappingURL=output.js.map\n" to the output file
@@ -88,7 +118,7 @@ esbuild.build({
     //     fs.writeFileSync(outfile, newContents);
     // })
     .then(() => {
-        console.log("File built successfully.");
+        console.log(`File built successfully at ${outfile}.`);
         // Run the file
         // import("../files/output.js");
         // import(outfile);
@@ -96,7 +126,12 @@ esbuild.build({
         // Run the file (but with --enable-source-maps)
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         require("source-map-support").install();
-        require(outfile);
+        try {
+            require(outfile);
+        } catch (e) {
+            console.error("Failed to run file:", e);
+            process.exit(1);
+        }
     })
     .catch((e) => {
         console.error("Failed to build file:", e);

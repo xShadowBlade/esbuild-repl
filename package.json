@@ -2,11 +2,12 @@
   "name": "esbuild-repl",
   "version": "0.1.0",
   "scripts": {
-    "build": "esbuild src/index.ts --outdir=build/ --platform=node --bundle --minify --external:esbuild --external:source-map-support",
+    "build": "esbuild src/index.ts --outdir=build/ --platform=node --bundle --minify --external:esbuild",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint --fix src/**/*.ts"
   },
   "main": "build/index.js",
+  "bin": "build/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/xShadowBlade/esbuild-repl"
